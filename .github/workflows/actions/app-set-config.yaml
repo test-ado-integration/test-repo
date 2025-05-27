@@ -1,0 +1,113 @@
+name: Set App Configuration
+
+on:
+  workflow_call:
+    inputs:
+      appName:
+        required: true
+        type: string
+        description: "Name of the app service"
+      resourceGroupName:
+        required: true
+        type: string
+        description: "Resource group containing the app service"
+      environment:
+        required: true
+        type: string
+        description: "Environment (dev, qa, prod)"
+      type:
+        required: true
+        type: string
+        description: "Type of the app service (webapp, functionapp)"
+      filePath:
+        required: true
+        type: string
+        description: "Path to the JSON configuration file"
+
+jobs:
+  flatten-json:
+    runs-on: ubuntu-latest
+    outputs:
+      flattened_file: ${{ steps.flatten.outputs.flattened_file }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      
+      - name: Install dotnet-appsettings tool
+        run: dotnet tool install -g dotnet-appsettings
+      
+      - name: Flatten JSON
+        id: flatten
+        run: |
+          echo "Flattening JSON configuration file: ${{ inputs.filePath }}"
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          flattened_file="flattened_$timestamp.json"
+          
+          dotnet appsettings flatten "${{ inputs.filePath }}" -o "$flattened_file"
+          
+          echo "Flattened JSON file created: $flattened_file"
+          cat "$flattened_file"
+          
+          echo "flattened_file=$flattened_file" >> $GITHUB_OUTPUT
+      
+      - name: Upload Flattened JSON as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: flattened-json-${{ github.run_id }}
+          path: flattened_*.json
+          retention-days: 7
+
+  update-settings:
+    needs: flatten-json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Flattened JSON
+        uses: actions/download-artifact@v3
+        with:
+          name: flattened-json-${{ github.run_id }}
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Update App Settings
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "Updating configuration for ${{ inputs.type }} ${{ inputs.appName }} in ${{ inputs.resourceGroupName }} (${{ inputs.environment }})"
+            
+            flattened_file="${{ needs.flatten-json.outputs.flattened_file }}"
+            
+            if [ "${{ inputs.type }}" == "webapp" ]; then
+              az webapp config appsettings set --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }} --settings @"$flattened_file"
+            elif [ "${{ inputs.type }}" == "functionapp" ]; then
+              az functionapp config appsettings set --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }} --settings @"$flattened_file"
+            else
+              echo "Unsupported app type: ${{ inputs.type }}"
+              exit 1
+            fi
+            
+            echo "Configuration updated successfully"
+      
+      - name: Restart App Service
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "Restarting ${{ inputs.type }} ${{ inputs.appName }} after configuration update"
+            
+            if [ "${{ inputs.type }}" == "webapp" ]; then
+              az webapp restart --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }}
+            elif [ "${{ inputs.type }}" == "functionapp" ]; then
+              az functionapp restart --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }}
+            else
+              echo "Unsupported app type: ${{ inputs.type }}"
+              exit 1
+            fi
+            
+            echo "App service restarted successfully"
