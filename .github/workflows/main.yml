@@ -1,0 +1,168 @@
+name: Test Dev Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      choosePipeline:
+        description: 'Choose pipeline to run'
+        required: true
+        default: 'getConfiguration'
+        type: choice
+        options:
+          - startApplication
+          - restartApplication
+          - stopApplication
+          - getConfiguration
+          - setConfiguration
+          - delConfiguration
+          - buildAndPushNewImage
+          - changeImage
+      filePath:
+        description: '[=] setConfiguration only. The path to the file itself from root of directory (foo/bar/configuration.yaml)'
+        required: false
+        default: 'configuration/athena-lg-applications/settings.DEV.json'
+        type: string
+      settingsToDelete:
+        description: '[=] delConfiguration only. The settings you want to remove space seperated like (FOO hello)'
+        required: false
+        default: ' '
+        type: string
+      imageRepositoryAndTag:
+        description: '[=] buildAndPushNewImage/changeImage only. the image repository followed by the tag like (bd/pothenesxes:v3.1)'
+        required: false
+        default: 'ai/dual-graphs-athena-lg:test-langgraph-explorer'
+        type: string
+      dockerfilePath:
+        description: '[=] buildAndPushNewImage only. the path to the Dockerfile from the root of the project repo (foo/bar/Dockerfile)'
+        required: false
+        default: 'Dockerfile'
+        type: string
+      changeImageOnWebapp:
+        description: '[=] buildAndPushNewImage only. Check to also change the image on the webapp itself'
+        required: false
+        default: false
+        type: boolean
+      appName:
+        description: 'Application name'
+        required: true
+        type: string
+      resourceGroupName:
+        description: 'Resource group name'
+        required: true
+        type: string
+      type:
+        description: 'Application type (webapp, functionapp)'
+        required: true
+        default: 'webapp'
+        type: string
+      environment:
+        description: 'Environment (dev, qa, prod)'
+        required: true
+        default: 'dev'
+        type: string
+      devContainerRegistry:
+        description: 'Development container registry name'
+        required: true
+        type: string
+      qaContainerRegistry:
+        description: 'QA container registry name'
+        required: true
+        type: string
+
+jobs:
+  ### APPLICATION ###
+  start-application:
+    if: ${{ github.event.inputs.choosePipeline == 'startApplication' }}
+    uses: ./.github/workflows/app-service-start.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      environment: ${{ github.event.inputs.environment }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  restart-application:
+    if: ${{ github.event.inputs.choosePipeline == 'restartApplication' }}
+    uses: ./.github/workflows/app-service-restart.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      environment: ${{ github.event.inputs.environment }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  stop-application:
+    if: ${{ github.event.inputs.choosePipeline == 'stopApplication' }}
+    uses: ./.github/workflows/app-service-stop.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      environment: ${{ github.event.inputs.environment }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  ### CONFIGURATION ###
+  get-configuration:
+    if: ${{ github.event.inputs.choosePipeline == 'getConfiguration' }}
+    uses: ./.github/workflows/app-get-config.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  set-configuration:
+    if: ${{ github.event.inputs.choosePipeline == 'setConfiguration' }}
+    uses: ./.github/workflows/app-set-config.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      filePath: ${{ github.event.inputs.filePath }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  delete-configuration:
+    if: ${{ github.event.inputs.choosePipeline == 'delConfiguration' }}
+    uses: ./.github/workflows/app-delete-config.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      type: ${{ github.event.inputs.type }}
+      settingNames: ${{ github.event.inputs.settingsToDelete }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  build-and-push-image:
+    if: ${{ github.event.inputs.choosePipeline == 'buildAndPushNewImage' }}
+    uses: ./.github/workflows/build-and-push-image-to-acrs.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      environment: ${{ github.event.inputs.environment }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      devContainerRegistry: ${{ github.event.inputs.devContainerRegistry }}
+      qaContainerRegistry: ${{ github.event.inputs.qaContainerRegistry }}
+      changeImageOnWebapp: ${{ github.event.inputs.changeImageOnWebapp }}
+      imageRepositoryAndTag: ${{ github.event.inputs.imageRepositoryAndTag }}
+      dockerFile: ${{ github.event.inputs.dockerfilePath }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      DEV_ACR_PASSWORD: ${{ secrets.DEV_ACR_PASSWORD }}
+      QA_ACR_PASSWORD: ${{ secrets.QA_ACR_PASSWORD }}
+
+  change-image:
+    if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
+    uses: ./.github/workflows/change-image.yaml
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      imageName: ${{ github.event.inputs.imageRepositoryAndTag }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
