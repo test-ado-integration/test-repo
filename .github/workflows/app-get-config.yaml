@@ -55,7 +55,7 @@ jobs:
             cat "$output_file"
       
       - name: Upload Configuration as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: app-config-${{ inputs.appName }}-${{ github.run_id }}
           path: ${{ inputs.appName }}_config_*.json

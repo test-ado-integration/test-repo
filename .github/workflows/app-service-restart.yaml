@@ -49,7 +49,7 @@ jobs:
             echo "App service restarted successfully"
       
       - name: Upload Log as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: restart-app-service-log-${{ inputs.appName }}-${{ github.run_id }}
           path: restart-app-service-log.txt
