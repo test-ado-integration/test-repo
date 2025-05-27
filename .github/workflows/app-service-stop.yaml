@@ -48,9 +48,4 @@ jobs:
             fi
             echo "App service stopped successfully"
       
-      - name: Upload Log as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: stop-app-service-log-${{ inputs.appName }}-${{ github.run_id }}
-          path: stop-app-service-log.txt
-          retention-days: 7
+      # Removed artifact upload step to fix runner issues

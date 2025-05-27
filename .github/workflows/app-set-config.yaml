@@ -29,69 +29,55 @@ on:
         description: "Azure credentials for authentication"
 
 jobs:
-  flatten-json:
+  set-app-config:
     runs-on: ubuntu-latest
-    outputs:
-      flattened_file: ${{ steps.flatten.outputs.flattened_file }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'
-      
-      - name: Install dotnet-appsettings tool
-        run: dotnet tool install -g dotnet-appsettings
-      
-      - name: Flatten JSON
-        id: flatten
-        run: |
-          echo "Flattening JSON configuration file: ${{ inputs.filePath }}"
-          timestamp=$(date +%Y%m%d_%H%M%S)
-          flattened_file="flattened_$timestamp.json"
-          
-          dotnet appsettings flatten "${{ inputs.filePath }}" -o "$flattened_file"
-          
-          echo "Flattened JSON file created: $flattened_file"
-          cat "$flattened_file"
-          
-          echo "flattened_file=$flattened_file" >> $GITHUB_OUTPUT
-      
-      - name: Upload Flattened JSON as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: flattened-json-${{ github.run_id }}
-          path: flattened_*.json
-          retention-days: 7
-
-  update-settings:
-    needs: flatten-json
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Flattened JSON
-        uses: actions/download-artifact@v2
-        with:
-          name: flattened-json-${{ github.run_id }}
       
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      - name: Update App Settings
+      - name: Set App Configuration
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            echo "Updating configuration for ${{ inputs.type }} ${{ inputs.appName }} in ${{ inputs.resourceGroupName }} (${{ inputs.environment }})"
+            echo "Setting configuration for ${{ inputs.type }} ${{ inputs.appName }} in ${{ inputs.resourceGroupName }} (${{ inputs.environment }})"
             
-            flattened_file="${{ needs.flatten-json.outputs.flattened_file }}"
+            # Get configuration from file
+            CONFIG_JSON=$(cat "${{ inputs.filePath }}")
             
+            # Process configuration to extract key-value pairs
+            # Convert the JSON to a format usable by Azure CLI
+            SETTINGS_ARGS=""
+            
+            # Flatten the JSON (simple approach for common cases)
+            echo "Processing configuration file: ${{ inputs.filePath }}"
+            
+            # Use jq if available, otherwise use a simpler approach
+            if command -v jq &> /dev/null; then
+              # Use jq to flatten and process JSON
+              echo "Using jq to process configuration"
+              SETTINGS_ARGS=$(jq -r 'to_entries | map("--settings \(.key)=\(.value|tostring)") | join(" ")' "${{ inputs.filePath }}")
+            else
+              # Simpler approach: assume top-level keys are settings
+              echo "Using basic JSON processing (no jq available)"
+              # Extract top-level key-value pairs using grep and sed
+              SETTINGS_ARGS=$(grep -o '"[^"]*"\s*:\s*"[^"]*"' "${{ inputs.filePath }}" | \
+                sed 's/"\([^"]*\)"\s*:\s*"\([^"]*\)"/--settings \1=\2/g' | tr '\n' ' ')
+            fi
+            
+            echo "Extracted settings arguments: $SETTINGS_ARGS"
+            
+            # Apply settings
             if [ "${{ inputs.type }}" == "webapp" ]; then
-              az webapp config appsettings set --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }} --settings @"$flattened_file"
+              echo "Setting webapp configuration"
+              eval "az webapp config appsettings set --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }} $SETTINGS_ARGS"
             elif [ "${{ inputs.type }}" == "functionapp" ]; then
-              az functionapp config appsettings set --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }} --settings @"$flattened_file"
+              echo "Setting functionapp configuration"
+              eval "az functionapp config appsettings set --name ${{ inputs.appName }} --resource-group ${{ inputs.resourceGroupName }} $SETTINGS_ARGS"
             else
               echo "Unsupported app type: ${{ inputs.type }}"
               exit 1

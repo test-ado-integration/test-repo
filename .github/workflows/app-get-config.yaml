@@ -54,9 +54,4 @@ jobs:
             echo "Configuration contents:"
             cat "$output_file"
       
-      - name: Upload Configuration as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-config-${{ inputs.appName }}-${{ github.run_id }}
-          path: ${{ inputs.appName }}_config_*.json
-          retention-days: 7
+      # Removed artifact upload step to fix runner issues
