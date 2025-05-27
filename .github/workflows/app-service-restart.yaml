@@ -19,6 +19,10 @@ on:
         required: true
         type: string
         description: "Type of the app service (webapp, functionapp)"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+        description: "Azure credentials for authentication"
 
 jobs:
   restart-app-service:

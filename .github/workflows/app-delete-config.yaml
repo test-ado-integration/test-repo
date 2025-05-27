@@ -23,6 +23,10 @@ on:
         required: true
         type: string
         description: "Space-separated list of setting names to delete"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+        description: "Azure credentials for authentication"
 
 jobs:
   delete-app-config-settings:

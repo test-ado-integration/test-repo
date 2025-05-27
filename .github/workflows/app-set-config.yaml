@@ -23,6 +23,10 @@ on:
         required: true
         type: string
         description: "Path to the JSON configuration file"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+        description: "Azure credentials for authentication"
 
 jobs:
   flatten-json:

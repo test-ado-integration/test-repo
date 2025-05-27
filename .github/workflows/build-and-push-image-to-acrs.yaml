@@ -36,6 +36,16 @@ on:
         type: boolean
         default: false
         description: "Flag to also change the image on the webapp"
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+        description: "Azure credentials for authentication"
+      DEV_ACR_PASSWORD:
+        required: true
+        description: "Password for the development container registry"
+      QA_ACR_PASSWORD:
+        required: true
+        description: "Password for the QA container registry"
 
 jobs:
   build-and-push-to-dev:
