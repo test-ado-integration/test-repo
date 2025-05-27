@@ -63,7 +63,7 @@ jobs:
   ### APPLICATION ###
   start-application:
     if: ${{ github.event.inputs.choosePipeline == 'startApplication' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-start.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -76,7 +76,7 @@ jobs:
 
   restart-application:
     if: ${{ github.event.inputs.choosePipeline == 'restartApplication' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-restart.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -89,7 +89,7 @@ jobs:
 
   stop-application:
     if: ${{ github.event.inputs.choosePipeline == 'stopApplication' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-stop.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -103,7 +103,7 @@ jobs:
   ### CONFIGURATION ###
   get-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'getConfiguration' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-get-config.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -116,7 +116,7 @@ jobs:
 
   set-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'setConfiguration' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-set-config.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -130,7 +130,7 @@ jobs:
 
   delete-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'delConfiguration' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-delete-config.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -144,7 +144,7 @@ jobs:
 
   build-and-push-image:
     if: ${{ github.event.inputs.choosePipeline == 'buildAndPushNewImage' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/build-and-push-image-to-acrs.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
@@ -163,7 +163,7 @@ jobs:
 
   change-image:
     if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
-    uses: test-ado-integration/webapp-pipelines/.github/workflows/change-image.yaml@main
+    uses: test-ado-integration/webapp-pipelines@main
     permissions:
       contents: read
     with:
