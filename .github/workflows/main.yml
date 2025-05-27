@@ -59,7 +59,7 @@ jobs:
   ### APPLICATION ###
   start-application:
     if: ${{ github.event.inputs.choosePipeline == 'startApplication' }}
-    uses: ./.github/workflows/app-service-start.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-start.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       environment: ${{ github.event.inputs.environment }}
@@ -70,7 +70,7 @@ jobs:
 
   restart-application:
     if: ${{ github.event.inputs.choosePipeline == 'restartApplication' }}
-    uses: ./.github/workflows/app-service-restart.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-restart.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       environment: ${{ github.event.inputs.environment }}
@@ -81,7 +81,7 @@ jobs:
 
   stop-application:
     if: ${{ github.event.inputs.choosePipeline == 'stopApplication' }}
-    uses: ./.github/workflows/app-service-stop.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-stop.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       environment: ${{ github.event.inputs.environment }}
@@ -93,7 +93,7 @@ jobs:
   ### CONFIGURATION ###
   get-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'getConfiguration' }}
-    uses: ./.github/workflows/app-get-config.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-get-config.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
@@ -104,7 +104,7 @@ jobs:
 
   set-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'setConfiguration' }}
-    uses: ./.github/workflows/app-set-config.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-set-config.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
@@ -116,7 +116,7 @@ jobs:
 
   delete-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'delConfiguration' }}
-    uses: ./.github/workflows/app-delete-config.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-delete-config.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
@@ -128,7 +128,7 @@ jobs:
 
   build-and-push-image:
     if: ${{ github.event.inputs.choosePipeline == 'buildAndPushNewImage' }}
-    uses: ./.github/workflows/build-and-push-image-to-acrs.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/build-and-push-image-to-acrs.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       environment: ${{ github.event.inputs.environment }}
@@ -145,7 +145,7 @@ jobs:
 
   change-image:
     if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
-    uses: ./.github/workflows/change-image.yaml
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/change-image.yaml@main
     with:
       appName: ${{ github.event.inputs.appName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
