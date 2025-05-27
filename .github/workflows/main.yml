@@ -28,9 +28,9 @@ on:
         default: ' '
         type: string
       imageDetails:
-        description: '[=] For buildAndPushNewImage/changeImage. Format: "imageRepositoryAndTag|dockerfilePath|changeImageOnWebapp" (e.g. "ai/dual-graphs:v1|Dockerfile|true")'
+        description: '[=] For buildAndPushNewImage/changeImage. The image repository and tag (e.g. "ai/dual-graphs:v1")'
         required: false
-        default: 'ai/dual-graphs-athena-lg:test-langgraph-explorer|Dockerfile|false'
+        default: 'ai/dual-graphs-athena-lg:test-langgraph-explorer'
         type: string
       appName:
         description: 'Application name'
@@ -51,7 +51,7 @@ on:
         default: 'dev'
         type: string
       containerRegistries:
-        description: 'Container registries: "devRegistryName|qaRegistryName"'
+        description: 'Container registry name (used for both dev and qa)'
         required: true
         type: string
 
@@ -133,11 +133,11 @@ jobs:
       appName: ${{ github.event.inputs.appName }}
       environment: ${{ github.event.inputs.environment }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
-      devContainerRegistry: ${{ fromJSON(format('["{{0}}", "{{1}}"]', split(github.event.inputs.containerRegistries, '|')[0], '')) }}
-      qaContainerRegistry: ${{ fromJSON(format('["{{0}}", "{{1}}"]', split(github.event.inputs.containerRegistries, '|')[1], '')) }}
-      changeImageOnWebapp: ${{ fromJSON(format('["{{0}}", "{{1}}"]', split(github.event.inputs.imageDetails, '|')[2], 'false')) }}
-      imageRepositoryAndTag: ${{ fromJSON(format('["{{0}}", "{{1}}"]', split(github.event.inputs.imageDetails, '|')[0], '')) }}
-      dockerFile: ${{ fromJSON(format('["{{0}}", "{{1}}"]', split(github.event.inputs.imageDetails, '|')[1], 'Dockerfile')) }}
+      devContainerRegistry: ${{ github.event.inputs.containerRegistries }}
+      qaContainerRegistry: ${{ github.event.inputs.containerRegistries }}
+      changeImageOnWebapp: false
+      imageRepositoryAndTag: ${{ github.event.inputs.imageDetails }}
+      dockerFile: 'Dockerfile'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       DEV_ACR_PASSWORD: ${{ secrets.DEV_ACR_PASSWORD }}
@@ -149,6 +149,6 @@ jobs:
     with:
       appName: ${{ github.event.inputs.appName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
-      imageName: ${{ fromJSON(format('["{{0}}", "{{1}}"]', split(github.event.inputs.imageDetails, '|')[0], '')) }}
+      imageName: ${{ github.event.inputs.imageDetails }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
