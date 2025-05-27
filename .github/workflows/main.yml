@@ -158,8 +158,8 @@ jobs:
       dockerFile: 'Dockerfile'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      DEV_ACR_PASSWORD: ${{ secrets.DEV_ACR_PASSWORD }}
-      QA_ACR_PASSWORD: ${{ secrets.QA_ACR_PASSWORD }}
+      # DEV_ACR_PASSWORD: ${{ secrets.DEV_ACR_PASSWORD }}
+      # QA_ACR_PASSWORD: ${{ secrets.QA_ACR_PASSWORD }}
 
   change-image:
     if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
