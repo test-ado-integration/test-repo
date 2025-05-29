@@ -1,5 +1,6 @@
 name: Test Dev Pipeline
 
+# Added PAT configuration for private repository access
 permissions:
   id-token: write
   contents: read
@@ -73,6 +74,7 @@ jobs:
       type: ${{ github.event.inputs.type }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
 
   restart-application:
     if: ${{ github.event.inputs.choosePipeline == 'restartApplication' }}
@@ -86,6 +88,7 @@ jobs:
       type: ${{ github.event.inputs.type }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
 
   stop-application:
     if: ${{ github.event.inputs.choosePipeline == 'stopApplication' }}
@@ -99,6 +102,7 @@ jobs:
       type: ${{ github.event.inputs.type }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
 
   ### CONFIGURATION ###
   get-configuration:
@@ -113,6 +117,7 @@ jobs:
       type: ${{ github.event.inputs.type }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
 
   set-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'setConfiguration' }}
@@ -127,6 +132,7 @@ jobs:
       type: ${{ github.event.inputs.type }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
 
   delete-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'delConfiguration' }}
@@ -141,6 +147,7 @@ jobs:
       settingNames: ${{ github.event.inputs.settingsToDelete }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
 
   build-and-push-image:
     if: ${{ github.event.inputs.choosePipeline == 'buildAndPushNewImage' }}
@@ -158,6 +165,7 @@ jobs:
       dockerFile: 'Dockerfile'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
       # DEV_ACR_PASSWORD: ${{ secrets.DEV_ACR_PASSWORD }}
       # QA_ACR_PASSWORD: ${{ secrets.QA_ACR_PASSWORD }}
 
@@ -172,3 +180,4 @@ jobs:
       imageName: ${{ github.event.inputs.imageDetails }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      PAT: ${{ secrets.repo_scope_pat }}
