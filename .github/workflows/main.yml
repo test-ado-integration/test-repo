@@ -63,113 +63,48 @@ jobs:
   ### APPLICATION ###
   start-application:
     if: ${{ github.event.inputs.choosePipeline == 'startApplication' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
-
-      - name: Run Azure App Service Start
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            # Login to Azure
-            echo '${{ secrets.AZURE_CREDENTIALS }}' > azure-credentials.json
-            az login --service-principal -u $(jq -r .clientId azure-credentials.json) -p $(jq -r .clientSecret azure-credentials.json) --tenant $(jq -r .tenantId azure-credentials.json)
-            
-            # Start Azure App Service
-            az webapp start --name ${{ github.event.inputs.appName }} \
-                          --resource-group ${{ github.event.inputs.resourceGroupName }}
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-start.yaml@main
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   restart-application:
     if: ${{ github.event.inputs.choosePipeline == 'restartApplication' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
-
-      - name: Run Azure App Service Restart
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            # Login to Azure
-            echo '${{ secrets.AZURE_CREDENTIALS }}' > azure-credentials.json
-            az login --service-principal -u $(jq -r .clientId azure-credentials.json) -p $(jq -r .clientSecret azure-credentials.json) --tenant $(jq -r .tenantId azure-credentials.json)
-            
-            # Restart Azure App Service
-            az webapp restart --name ${{ github.event.inputs.appName }} \
-                           --resource-group ${{ github.event.inputs.resourceGroupName }}
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-restart.yaml@main
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   stop-application:
     if: ${{ github.event.inputs.choosePipeline == 'stopApplication' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
-
-      - name: Run Azure App Service Stop
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            # Login to Azure
-            echo '${{ secrets.AZURE_CREDENTIALS }}' > azure-credentials.json
-            az login --service-principal -u $(jq -r .clientId azure-credentials.json) -p $(jq -r .clientSecret azure-credentials.json) --tenant $(jq -r .tenantId azure-credentials.json)
-            
-            # Stop Azure App Service
-            az webapp stop --name ${{ github.event.inputs.appName }} \
-                        --resource-group ${{ github.event.inputs.resourceGroupName }}
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-service-stop.yaml@main
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   ### CONFIGURATION ###
   get-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'getConfiguration' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
-
-      - name: Run Azure App Service Get Config
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            # Login to Azure
-            echo '${{ secrets.AZURE_CREDENTIALS }}' > azure-credentials.json
-            az login --service-principal -u $(jq -r .clientId azure-credentials.json) -p $(jq -r .clientSecret azure-credentials.json) --tenant $(jq -r .tenantId azure-credentials.json)
-            
-            # Get App Service Configuration
-            az webapp config appsettings list --name ${{ github.event.inputs.appName }} \
-                                          --resource-group ${{ github.event.inputs.resourceGroupName }} \
-                                          --output json
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/app-get-config.yaml@main
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      type: ${{ github.event.inputs.type }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   set-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'setConfiguration' }}
@@ -177,13 +112,6 @@ jobs:
     steps:
       - name: Checkout main repository
         uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
 
       - name: Run Azure App Service Set Config
         uses: azure/CLI@v1
@@ -206,13 +134,6 @@ jobs:
     steps:
       - name: Checkout main repository
         uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
 
       - name: Run Azure App Service Delete Config
         uses: azure/CLI@v1
@@ -240,37 +161,19 @@ jobs:
 
   build-and-push-image:
     if: ${{ github.event.inputs.choosePipeline == 'buildAndPushNewImage' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
-
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Build and push image to Azure Container Registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ github.event.inputs.containerRegistries }}.azurecr.io
-          username: ${{ github.event.inputs.containerRegistries }}
-          password: ${{ secrets.DEV_ACR_PASSWORD }}
-      
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ github.event.inputs.containerRegistries }}.azurecr.io/${{ github.event.inputs.imageDetails }}
+    uses: test-ado-integration/webapp-pipelines/.github/workflows/build-and-push-image-to-acrs.yaml@main
+    with:
+      appName: ${{ github.event.inputs.appName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      environment: ${{ github.event.inputs.environment }}
+      devContainerRegistry: ${{ github.event.inputs.containerRegistries }}
+      qaContainerRegistry: ${{ github.event.inputs.containerRegistries }}
+      imageRepositoryAndTag: ${{ github.event.inputs.imageDetails }}
+      dockerFile: "./Dockerfile"
+      changeImageOnWebapp: false
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      DEV_ACR_PASSWORD: ${{ secrets.DEV_ACR_PASSWORD }}
 
   change-image:
     if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
@@ -278,13 +181,6 @@ jobs:
     steps:
       - name: Checkout main repository
         uses: actions/checkout@v3
-
-      - name: Checkout private repository
-        uses: actions/checkout@v3
-        with:
-          repository: test-ado-integration/webapp-pipelines
-          path: private-repo
-          token: ${{ secrets.REPO_SCOPE_PAT }}
 
       - name: Run Azure App Service Change Image
         uses: azure/CLI@v1
@@ -298,4 +194,4 @@ jobs:
             # Update container image
             az webapp config container set --name ${{ github.event.inputs.appName }} \
                                         --resource-group ${{ github.event.inputs.resourceGroupName }} \
-                                        --docker-custom-image-name ${{ github.event.inputs.imageName }}
+                                        --docker-custom-image-name ${{ github.event.inputs.containerRegistries }}.azurecr.io/${{ github.event.inputs.imageDetails }}
