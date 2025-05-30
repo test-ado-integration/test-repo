@@ -65,104 +65,82 @@ jobs:
     if: ${{ github.event.inputs.choosePipeline == 'startApplication' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Checkout private repository
+        uses: actions/checkout@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+          repository: test-ado-integration/webapp-pipelines
+          token: ${{ secrets.REPO_SCOPE_PAT }}
+          path: webapp-pipelines
+
       - name: Start App Service
-        uses: azure/CLI@v1
+        uses: ./webapp-pipelines/.github/actions/start-app-service
         with:
-          inlineScript: |
-            echo "Starting ${{ github.event.inputs.type }} ${{ github.event.inputs.appName }} in ${{ github.event.inputs.resourceGroupName }} (${{ github.event.inputs.environment }})"
-            if [ "${{ github.event.inputs.type }}" == "webapp" ]; then
-              az webapp start --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
-            elif [ "${{ github.event.inputs.type }}" == "functionapp" ]; then
-              az functionapp start --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
-            else
-              echo "Unsupported app type: ${{ github.event.inputs.type }}"
-              exit 1
-            fi
-            echo "App service started successfully"
+          appName: ${{ github.event.inputs.appName }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+          environment: ${{ github.event.inputs.environment }}
+          type: ${{ github.event.inputs.type }}
+          azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   restart-application:
     if: ${{ github.event.inputs.choosePipeline == 'restartApplication' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Checkout private repository
+        uses: actions/checkout@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+          repository: test-ado-integration/webapp-pipelines
+          token: ${{ secrets.REPO_SCOPE_PAT }}
+          path: webapp-pipelines
+
       - name: Restart App Service
-        uses: azure/CLI@v1
+        uses: ./webapp-pipelines/.github/actions/restart-app-service
         with:
-          inlineScript: |
-            echo "Restarting ${{ github.event.inputs.type }} ${{ github.event.inputs.appName }} in ${{ github.event.inputs.resourceGroupName }} (${{ github.event.inputs.environment }})"
-            if [ "${{ github.event.inputs.type }}" == "webapp" ]; then
-              az webapp restart --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
-            elif [ "${{ github.event.inputs.type }}" == "functionapp" ]; then
-              az functionapp restart --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
-            else
-              echo "Unsupported app type: ${{ github.event.inputs.type }}"
-              exit 1
-            fi
-            echo "App service restarted successfully"
+          appName: ${{ github.event.inputs.appName }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+          environment: ${{ github.event.inputs.environment }}
+          type: ${{ github.event.inputs.type }}
+          azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   stop-application:
     if: ${{ github.event.inputs.choosePipeline == 'stopApplication' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Checkout private repository
+        uses: actions/checkout@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+          repository: test-ado-integration/webapp-pipelines
+          token: ${{ secrets.REPO_SCOPE_PAT }}
+          path: webapp-pipelines
+
       - name: Stop App Service
-        uses: azure/CLI@v1
+        uses: ./webapp-pipelines/.github/actions/stop-app-service
         with:
-          inlineScript: |
-            echo "Stopping ${{ github.event.inputs.type }} ${{ github.event.inputs.appName }} in ${{ github.event.inputs.resourceGroupName }} (${{ github.event.inputs.environment }})"
-            if [ "${{ github.event.inputs.type }}" == "webapp" ]; then
-              az webapp stop --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
-            elif [ "${{ github.event.inputs.type }}" == "functionapp" ]; then
-              az functionapp stop --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }}
-            else
-              echo "Unsupported app type: ${{ github.event.inputs.type }}"
-              exit 1
-            fi
-            echo "App service stopped successfully"
+          appName: ${{ github.event.inputs.appName }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+          environment: ${{ github.event.inputs.environment }}
+          type: ${{ github.event.inputs.type }}
+          azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   ### CONFIGURATION ###
   get-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'getConfiguration' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Checkout private repository
+        uses: actions/checkout@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
+          repository: test-ado-integration/webapp-pipelines
+          token: ${{ secrets.REPO_SCOPE_PAT }}
+          path: webapp-pipelines
+
       - name: Get App Configuration
-        uses: azure/CLI@v1
+        uses: ./webapp-pipelines/.github/actions/get-app-config
         with:
-          inlineScript: |
-            echo "Getting configuration for ${{ github.event.inputs.type }} ${{ github.event.inputs.appName }} in ${{ github.event.inputs.resourceGroupName }} (${{ github.event.inputs.environment }})"
-            timestamp=$(date +%Y%m%d_%H%M%S)
-            output_file="${{ github.event.inputs.appName }}_config_${timestamp}.json"
-            
-            if [ "${{ github.event.inputs.type }}" == "webapp" ]; then
-              az webapp config appsettings list --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }} > "$output_file"
-            elif [ "${{ github.event.inputs.type }}" == "functionapp" ]; then
-              az functionapp config appsettings list --name ${{ github.event.inputs.appName }} --resource-group ${{ github.event.inputs.resourceGroupName }} > "$output_file"
-            else
-              echo "Unsupported app type: ${{ github.event.inputs.type }}"
-              exit 1
-            fi
-            
-            echo "Configuration successfully retrieved and saved to $output_file"
-            echo "Configuration contents:"
-            cat "$output_file"
+          appName: ${{ github.event.inputs.appName }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+          environment: ${{ github.event.inputs.environment }}
+          type: ${{ github.event.inputs.type }}
+          azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
 
   set-configuration:
     if: ${{ github.event.inputs.choosePipeline == 'setConfiguration' }}
@@ -221,38 +199,27 @@ jobs:
     if: ${{ github.event.inputs.choosePipeline == 'buildAndPushNewImage' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout main repository
         uses: actions/checkout@v3
-      
-      - name: Azure Login
-        uses: azure/login@v1
+
+      - name: Checkout private repository
+        uses: actions/checkout@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
-      - name: Login to DEV ACR
-        uses: azure/docker-login@v1
+          repository: test-ado-integration/webapp-pipelines
+          token: ${{ secrets.REPO_SCOPE_PAT }}
+          path: webapp-pipelines
+
+      - name: Build and Push Image
+        uses: ./webapp-pipelines/.github/actions/build-and-push-image
         with:
-          login-server: ${{ github.event.inputs.containerRegistries }}.azurecr.io
-          username: ${{ github.event.inputs.containerRegistries }}
-          password: ${{ secrets.DEV_ACR_PASSWORD }}
-      
-      - name: Build and push to DEV ACR
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ github.event.inputs.containerRegistries }}.azurecr.io/${{ github.event.inputs.imageDetails }}
-          cache-from: type=registry,ref=${{ github.event.inputs.containerRegistries }}.azurecr.io/${{ github.event.inputs.imageDetails }}
-          cache-to: type=inline
-      
-      - name: Verify image in DEV ACR
-        run: |
-          az acr repository show --name ${{ github.event.inputs.containerRegistries }} --image ${{ github.event.inputs.imageDetails }}
-          echo "Successfully pushed image to DEV ACR: ${{ github.event.inputs.containerRegistries }}.azurecr.io/${{ github.event.inputs.imageDetails }}"
+          appName: ${{ github.event.inputs.appName }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+          environment: ${{ github.event.inputs.environment }}
+          containerRegistry: ${{ github.event.inputs.containerRegistries }}
+          imageRepositoryAndTag: ${{ github.event.inputs.imageDetails }}
+          dockerFile: "./Dockerfile"
+          azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+          acrPassword: ${{ secrets.DEV_ACR_PASSWORD }}
 
   change-image:
     if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
