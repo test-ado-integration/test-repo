@@ -24,7 +24,7 @@ on:
       filePath:
         description: '[=] setConfiguration only. The path to the file itself from root of directory (foo/bar/configuration.yaml)'
         required: false
-        default: 'configuration/athena-lg-applications/settings.DEV.json'
+        default: 'settings.test.json'
         type: string
       settingsToDelete:
         description: '[=] delConfiguration only. The settings you want to remove space seperated like (FOO hello)'
@@ -34,18 +34,18 @@ on:
       imageDetails:
         description: '[=] For buildAndPushNewImage/changeImage. The image repository and tag (e.g. "ai/dual-graphs:v1")'
         required: false
-        default: 'ai/universal-lg:latest'
+        default: 'test-image:latest'
         type: string
       appName:
         description: 'Application name'
         required: true
         type: string
-        default: 'nbg-webapp-cc-lg-test-we-dev-02'
+        default: 'app-bigdata-webapp-test-dev-we-001'
       resourceGroupName:
         description: 'Resource group name'
         required: true
         type: string
-        default: 'rg-cc'
+        default: 'BigDataDev'
       type:
         description: 'Application type (webapp, functionapp)'
         required: true
@@ -60,6 +60,7 @@ on:
         description: 'Container registry name (used for both dev and qa)'
         required: true
         type: string
+        default: '914DockerRegistry'
 
 jobs:
   ### APPLICATION ###
