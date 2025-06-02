@@ -221,7 +221,6 @@ jobs:
           imageRepositoryAndTag: ${{ github.event.inputs.imageDetails }}
           dockerFile: "./Dockerfile"
           azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
-          acrPassword: ${{ secrets.DEV_ACR_PASSWORD }}
 
   change-image:
     if: ${{ github.event.inputs.choosePipeline == 'changeImage' }}
