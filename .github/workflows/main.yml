@@ -34,16 +34,18 @@ on:
       imageDetails:
         description: '[=] For buildAndPushNewImage/changeImage. The image repository and tag (e.g. "ai/dual-graphs:v1")'
         required: false
-        default: 'ai/dual-graphs-athena-lg:test-langgraph-explorer'
+        default: 'ai/universal-lg:latest'
         type: string
       appName:
         description: 'Application name'
         required: true
         type: string
+        default: 'nbg-webapp-cc-lg-test-we-dev-02'
       resourceGroupName:
         description: 'Resource group name'
         required: true
         type: string
+        default: 'rg-cc'
       type:
         description: 'Application type (webapp, functionapp)'
         required: true
